@@ -9,7 +9,7 @@ namespace Temna_Doba.InputGroup
         private int currentDayRuleCount = 0;
         private int currentDayCitizenCount = 0;
         private int ruleDayLineCount = 0;
-        private bool hasAnyDayBeenProcessed = false;
+        private bool hasDayBeenProcessed = false;
         private InputReceiver receiver;
         private RuleRepository ruleRepository;
         private List<string> currentDayRuleIdentificators = new List<string>();
@@ -29,6 +29,11 @@ namespace Temna_Doba.InputGroup
             while (!receiver.HasInputEnded()) 
             {
                 string getNextInLine = receiver.GetNextInLine();
+                if (string.IsNullOrWhiteSpace(getNextInLine))
+                {
+                    break;
+                }
+                
                 string[] splitLine = getNextInLine.Split(' ');
                 int lineCount = receiver.LinesRead;
 
@@ -50,34 +55,48 @@ namespace Temna_Doba.InputGroup
                 else
                 {
                     ruleDayLineCount++;
-                    if (!hasAnyDayBeenProcessed)
+                    
+                    if (ruleDayLineCount >  currentDayRuleCount + currentDayCitizenCount 
+                        && currentDayCitizenList.Count != 0
+                        && currentDayRuleIdentificators.Count != 0)
+                    {
+                        EndDay(currentDayCitizenList,currentDayRuleIdentificators);
+                        ClearDayData();
+                        hasDayBeenProcessed = false;
+                    }
+                    
+                    if (!hasDayBeenProcessed)
                     {
                         currentDayRuleCount = int.Parse(splitLine[0]);
                         currentDayCitizenCount = int.Parse(splitLine[1]);
-                        hasAnyDayBeenProcessed = true;
+                        
+                        hasDayBeenProcessed = true;
+                        ruleDayLineCount = 0;
+                        
                         continue;
                     }
-                    else if (ruleDayLineCount <= currentDayRuleCount + 1)
+                    
+                    if (ruleDayLineCount <= currentDayRuleCount)
                     {
                         currentDayRuleIdentificators.Add(splitLine[0]);
                         continue;
                     }
-                    else if (ruleDayLineCount <= currentDayRuleCount + currentDayCitizenCount + 1)
+                    
+                    if (ruleDayLineCount <= currentDayRuleCount + currentDayCitizenCount)
                     {
                         Citizen citizen = new Citizen();
-                        citizen.Name = splitLine[0];
-                        citizen.Score = int.Parse(splitLine[1]);
+                        citizen.Score = int.Parse(splitLine[splitLine.Length - 1]);
+                        
+                        string citizenName = string.Empty;
+                        for (int i = 0; i < splitLine.Length - 1; i++)
+                        {
+                            citizenName += splitLine[i] + " ";
+                        }
+                        citizenName.TrimEnd();
+
+                        citizen.Name = citizenName;
                         currentDayCitizenList.Add(citizen);
                         continue;
-                    }
-                    else
-                    {
-                        EndDay(currentDayCitizenList, currentDayRuleIdentificators);
-
-                        currentDayRuleCount = int.Parse(splitLine[0]);
-                        currentDayCitizenCount = int.Parse(splitLine[1]);
-
-                        ClearDayData();
                     }
                 }
             }
