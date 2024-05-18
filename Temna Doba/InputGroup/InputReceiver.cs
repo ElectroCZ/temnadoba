@@ -15,7 +15,7 @@
             {
                 char inputChar = (char)inputValue;
                 
-                if (inputChar == '\n')
+                if (inputChar == '\n' || inputChar == '\r')
                 {
                     break;
                 }
