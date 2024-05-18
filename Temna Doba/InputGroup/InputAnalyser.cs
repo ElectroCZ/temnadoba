@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Temna_Doba.DayGroup;
+﻿using Temna_Doba.DayGroup;
 using Temna_Doba.RuleGroup;
 
 namespace Temna_Doba.InputGroup
@@ -12,7 +6,6 @@ namespace Temna_Doba.InputGroup
     internal class InputAnalyser
     {
         private int ruleCount = 0;
-        private int dayCount = 0;
         private int currentDayRuleCount = 0;
         private int currentDayCitizenCount = 0;
         private int ruleDayLineCount = 0;
@@ -21,19 +14,19 @@ namespace Temna_Doba.InputGroup
         private RuleRepository ruleRepository;
         private List<string> currentDayRuleIdentificators = new List<string>();
         private List<Citizen> currentDayCitizenList = new List<Citizen>();
-        private DayRuleManager dayRuleManager;
+        private DayRuleRepository dayRuleRepository;
 
-
-
-        public InputAnalyser()
+        public InputAnalyser(DayRuleRepository dayRuleRepository,RuleRepository ruleRepository)
         {
             receiver = new InputReceiver();
-            ruleRepository= new RuleRepository();
+            this.ruleRepository = ruleRepository;
+            this.dayRuleRepository = dayRuleRepository;
+            
         }
 
         public void AnalyseInput()
         {
-            while (receiver.HasInputEnded()) 
+            while (!receiver.HasInputEnded()) 
             {
                 string getNextInLine = receiver.GetNextInLine();
                 string[] splitLine = getNextInLine.Split(' ');
@@ -42,7 +35,6 @@ namespace Temna_Doba.InputGroup
                 if (lineCount == 1)
                 {
                     ruleCount = int.Parse(splitLine[0]);
-                    dayCount = int.Parse(splitLine[1]);
                     continue;
                 }
                 else if (lineCount <= ruleCount + 1)
@@ -65,12 +57,12 @@ namespace Temna_Doba.InputGroup
                         hasAnyDayBeenProcessed = true;
                         continue;
                     }
-                    else if (ruleDayLineCount <= currentDayRuleCount)
+                    else if (ruleDayLineCount <= currentDayRuleCount + 1)
                     {
                         currentDayRuleIdentificators.Add(splitLine[0]);
                         continue;
                     }
-                    else if (ruleDayLineCount <= currentDayRuleCount + currentDayCitizenCount)
+                    else if (ruleDayLineCount <= currentDayRuleCount + currentDayCitizenCount + 1)
                     {
                         Citizen citizen = new Citizen();
                         citizen.Name = splitLine[0];
@@ -81,11 +73,11 @@ namespace Temna_Doba.InputGroup
                     else
                     {
                         EndDay(currentDayCitizenList, currentDayRuleIdentificators);
+
                         currentDayRuleCount = int.Parse(splitLine[0]);
                         currentDayCitizenCount = int.Parse(splitLine[1]);
 
                         ClearDayData();
-
                     }
                 }
             }
@@ -99,7 +91,7 @@ namespace Temna_Doba.InputGroup
             dayRule.CitizenList = new List<Citizen>(citizens);
             dayRule.RuleIdentificatorList = new List<string>(ruleIdentificators);
 
-            dayRuleManager.AddDayRule(dayRule);
+            dayRuleRepository.AddDayRule(dayRule);
         }
 
         private void ClearDayData()
@@ -109,7 +101,7 @@ namespace Temna_Doba.InputGroup
             ruleDayLineCount = 0;
         }
 
-        public RuleTypes ConvertStringToRuleType(string ruleType)
+        private RuleTypes ConvertStringToRuleType(string ruleType)
         {
             switch(ruleType)
             {
@@ -124,7 +116,7 @@ namespace Temna_Doba.InputGroup
             }
         }
 
-        public RuleOperations ConvertStringToRuleOps(string ruleOps)
+        private RuleOperations ConvertStringToRuleOps(string ruleOps)
         {
             switch (ruleOps)
             {
@@ -148,8 +140,6 @@ namespace Temna_Doba.InputGroup
                 default:
                     return RuleOperations.ROVNA_SE;
             }
-        }
-        
+        } 
     }
-
 }

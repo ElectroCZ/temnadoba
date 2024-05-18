@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Temna_Doba.InputGroup
+﻿namespace Temna_Doba.InputGroup
 {
     public class InputReceiver
     {
         private bool hasReachedEOF = false;
-        
+
         public int LinesRead { get; set; } = 0;
 
         public string GetNextInLine()
@@ -39,7 +33,6 @@ namespace Temna_Doba.InputGroup
                 LinesRead++;
             }
 
-            
             return inputLine;
         }
 

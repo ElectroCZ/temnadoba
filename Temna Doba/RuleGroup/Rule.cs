@@ -1,7 +1,4 @@
-﻿
-using System.Security.Principal;
-
-namespace Temna_Doba.RuleGroup
+﻿namespace Temna_Doba.RuleGroup
 {
     public class Rule
     {
@@ -9,6 +6,5 @@ namespace Temna_Doba.RuleGroup
         public RuleTypes RuleType { get; set; }
         public RuleOperations RuleOps { get; set; }
         public string RuleValue { get; set; }
-        
     }
 }

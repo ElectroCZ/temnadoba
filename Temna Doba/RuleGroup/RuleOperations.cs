@@ -1,5 +1,4 @@
-﻿
-namespace Temna_Doba.RuleGroup
+﻿namespace Temna_Doba.RuleGroup
 {
     public enum RuleOperations
     {
